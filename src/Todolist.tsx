@@ -1,6 +1,6 @@
 import React, {ChangeEvent, KeyboardEvent, useRef, useState} from 'react';
 import {FilterValuesType} from './App';
-import useAutoAnimate from '@formkit/auto-animate'
+import { useAutoAnimate } from '@formkit/auto-animate/react'
 
 type TaskType = {
     id: string
