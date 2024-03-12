@@ -1,5 +1,6 @@
 import React, {ChangeEvent, KeyboardEvent, useRef, useState} from 'react';
 import {FilterValuesType} from './App';
+import useAutoAnimate from '@formkit/auto-animate'
 
 type TaskType = {
     id: string
@@ -13,46 +14,51 @@ type PropsType = {
     removeTask: (taskId: string) => void
     changeFilter: (value: FilterValuesType) => void
     addTask: (title: string) => void
+    children?:React.ReactNode
 }
 
-export function Todolist(props: PropsType) {
-    let [title, setTitle] = useState("")
 
-    const addTask = () => {
-        props.addTask(title);
-        setTitle("");
-    }
+// 3. Let's append some animation in our project:
+//yarn add  @formkit/auto-animate -D
+// we use -D, because the best practice is to add new extensions to the object inside the package.json
+// "devDependencies": {
+//     "@formkit/auto-animate": "^1.0.0-beta.3"
+//   }
+// const [listRef] = useAutoAnimate<HTMLUListElement>() in Todolist.tsx
+// <ul ref={listRef}>
+//Look how smoothly the tasks are added!
+//P.S. Do you understand why a new task append in all Todolists?
+// [because we only have one state for all our todolists, but we'll talk about that on Tuesday.]
 
-    const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
-        setTitle(e.currentTarget.value)
-    }
 
 
-    const onKeyPressHandler = (e: KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
-            addTask();
-        }
-    }
+export const Todolist: React.FC<PropsType> = ({children, ...props}) => {
+ 
+
 
     const onAllClickHandler = () => props.changeFilter("all");
     const onActiveClickHandler = () => props.changeFilter("active");
     const onCompletedClickHandler = () => props.changeFilter("completed");
 
+    const refToInput = useRef<HTMLInputElement>(null)
+    const [listRef] = useAutoAnimate<HTMLUListElement>()
+
     return <div>
+        {children}
         <h3>{props.title}</h3>
         <div>
-            <input value={title}
-                   onChange={onChangeHandler}
-                   onKeyPress={onKeyPressHandler}
-            />
-            <button onClick={addTask}>+</button>
+            <input ref={refToInput} />
+            <button onClick={()=> {
+                if(refToInput.current){
+                    props.addTask(refToInput.current.value)
+                }
+            }}>+</button>
         </div>
-        <ul>
+       
+        <ul ref={listRef}>
             {
                 props.tasks.map(t => {
-
                     const onClickHandler = () => props.removeTask(t.id)
-
                     return <li key={t.id}>
                         <input type="checkbox" checked={t.isDone}/>
                         <span>{t.title}</span>
